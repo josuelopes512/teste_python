@@ -2,6 +2,8 @@
 
 with open('treinamento.txt', mode='r') as f:
     treinamento = f.read()
+
+
 print(treinamento[:500])
 len(treinamento)
 texto_exemplo = 'Olá, tudo bem?'
@@ -401,7 +403,6 @@ def gerador_palavras(palavra):
     return palavras_geradas
 
 ############################# Função avaliador() ###############################
-
 
 def avaliador(testes, vocabulario):
     numero_palavras = len(testes)
