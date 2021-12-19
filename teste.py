@@ -1,3 +1,4 @@
+import csv
 import nltk
 import json
 from unicodedata import normalize
@@ -105,7 +106,7 @@ class CorretorNLP:
         taxa_desconhecidas = round(desconhecidas * 100 / numero_palavras, 2)
         data = {
             "Correta": [i for i, _ in testes],
-            "Errada": [j for _, j in testes],
+            "Errada":  [j for _, j in testes],
             "Matches": matches,
             "Corretor": [self.corretor(j)[0] for _, j in testes],
             "Candidatos": [i for i in list(set(sum(candidatos_list, []))) if i in self.vocabulario],
@@ -142,9 +143,17 @@ def train():
         for i in zeros_err:
             f.write(f"{i['Correta'][0]} {i['Errada'][0]}\n")
 
+    with open("dumps/file.csv", "w", encoding='UTF8', newline='') as f:
+        try:
+            fieldnames = ["Correta", "Errada", "Matches", "Corretor", "Candidatos", "TaxaDeAcerto", "TaxaDesconhecidas", "targetMatches", "targetCorretor"]
+            writer = csv.DictWriter(f, fieldnames=fieldnames)
+            writer.writeheader()
+            writer.writerows(aaa)
+        finally:
+            f.close()
 a = CorretorNLP()
 a.teste("palavras.txt")
 train()
 for i in range(5):
     a.teste("dumps/treinamento_erros.txt")
-    train()
+    # train()
