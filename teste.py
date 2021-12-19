@@ -5,7 +5,7 @@ from unicodedata import normalize
 nltk.download('punkt')
 
 class CorretorNLP:
-    def __init__(self, text) -> None:
+    def __init__(self, text='') -> None:
         self.text_tokenize = nltk.tokenize.word_tokenize(text)
         self.listar_palavras_text = [i.lower() for i in self.text_tokenize if i.isalpha()]
 
@@ -15,12 +15,13 @@ class CorretorNLP:
         self.frequencia_text = nltk.FreqDist(self.listar_palavras_dataset)
         self.vocabulario = set(self.listar_palavras_dataset)
         self.palavras_geradas = self.gerador_inception(self.gerador_palavras(text))
+    
+    def teste_file(self, file):
+        return [(k.lower(), v.lower()) for k, v in [tuple(i.split()) for i in open(file, mode='r', encoding="utf-8")]]
         
-        self.dataset_test = [tuple(i.split()) for i in open('palavras.txt', mode='r', encoding="utf8")]
-        self.teste()
-        
-    def teste(self):
-        with open("dumps/avaliacao.json", "a", encoding="utf8") as f:
+    def teste(self, file):
+        self.dataset_test = self.teste_file(file)
+        with open("dumps/avaliacao.json", "w", encoding="utf-8") as f:
             f.write(json.dumps([self.avaliador([i]) for i in self.dataset_test]))
 
     def norm_text(self, text):
@@ -33,7 +34,7 @@ class CorretorNLP:
         print(self.avaliador(teste))
 
     def lerArquivo(self, arquivo):
-        with open(arquivo, mode='r', encoding="utf8") as f:
+        with open(arquivo, mode='r', encoding="utf-8") as f:
             file = f.read()
         return file
 
@@ -79,6 +80,9 @@ class CorretorNLP:
         for palavra in todas_palavras:
             if palavra in self.vocabulario:
                 candidatos.append(palavra)
+        if not candidatos:
+            result, candidatos = self.corretor(palavra_errada)
+            return self.corretor(palavra_errada)
         return max(candidatos, key=self.probabilidade), candidatos
 
     def avaliador(self, testes):
@@ -92,11 +96,13 @@ class CorretorNLP:
                 palavra_corrigida, candidatos  = self.corretor_super_sayajin(errada)
             except:
                 palavra_corrigida, candidatos = self.corretor(errada)
+            
             desconhecidas += (correta not in self.vocabulario)
             if palavra_corrigida == correta:
                 matches.append(palavra_corrigida)
-                candidatos_list.append(candidatos)
                 acertou += 1
+            else:
+                candidatos_list.append(candidatos)
         taxa_acerto = round(acertou * 100 / numero_palavras, 2)
         taxa_desconhecidas = round(desconhecidas * 100 / numero_palavras, 2)
         data = {
@@ -104,7 +110,7 @@ class CorretorNLP:
             "Errada": [j for _, j in testes],
             "Matches": matches,
             "Corretor": [self.corretor(j)[0] for _, j in testes],
-            "Candidatos": list(set(sum(candidatos_list, []))),
+            "Candidatos": [i for i in list(set(sum(candidatos_list, []))) if i in self.vocabulario],
             "TaxaDeAcerto": taxa_acerto,
             "TaxaDesconhecidas": taxa_desconhecidas,
         }
@@ -116,4 +122,30 @@ class CorretorNLP:
 
         return data
 
-a = CorretorNLP("arrozd")
+def train():
+    with open("dumps/avaliacao.json", 'r', encoding="utf-8") as f:
+        aaa = json.loads(f.read()) 
+    targetMatches = [i["targetMatches"] for i in aaa]
+    targetCorretor = [i["targetCorretor"] for i in aaa]
+    a = [(targetMatches[i], targetCorretor[i]) for i in range(len(targetMatches))]
+    zero = [(i, j) for i, j in a if i == j == 0]
+    um = [(i, j) for i, j in a if i == j == 1]
+    others = [(i, j) for i, j in a if i != j]
+    um_esquerda = [(i, j) for i, j in others if j == 1]
+    um_direita = [(i, j) for i, j in others if i == 1]
+    zeros_err = [i for i in aaa if i["targetMatches"] == 0 and i["targetCorretor"] == 0]
+
+    print(sum(targetMatches)*100/len(targetMatches), sum(targetCorretor)*100/len(targetCorretor))
+    print(sum(targetMatches), sum(targetCorretor), len(targetMatches))
+    
+    with open("dumps/0_0.json", "w", encoding="utf-8") as f:
+        f.write(json.dumps(zeros_err))
+    with open("dumps/treinamento_erros.txt", "w", encoding="utf-8") as f:
+        for i in zeros_err:
+            f.write(f"{i['Correta'][0]} {i['Errada'][0]}\n")
+
+a = CorretorNLP()
+a.teste("palavras.txt")
+train()
+# a.teste("treinamento_erros.txt")
+# train()
