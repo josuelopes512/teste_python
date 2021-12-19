@@ -18,13 +18,9 @@ class CorretorNLP:
         
         self.dataset_test = [tuple(i.split()) for i in open('palavras.txt', mode='r', encoding="utf8")]
         
-        # print(f'Entrada ===============================> {text}')
-        # print(f'Resposta do corretor_super_sayajin() ==> {self.corretor_super_sayajin(text)}')
-        # self.verifica_similaridade(text, self.corretor_super_sayajin(text)[0])
-        # print(f'Resposta do corretor() ================> {self.corretor(text)}')
-        # self.verifica_similaridade(text, self.corretor(text))
-        # print(f'vocabulario ===========================> {self.vocabulario}')
-        # print([i for i in self.dataset_test])
+        
+
+    def teste(self):
         with open("dumps/avaliacao.json", "a", encoding="utf8") as f:
             f.write(json.dumps([self.avaliador([i]) for i in self.dataset_test]))
 
@@ -112,17 +108,13 @@ class CorretorNLP:
             "Candidatos": list(set(sum(candidatos_list, []))),
             "TaxaDeAcerto": taxa_acerto,
             "TaxaDesconhecidas": taxa_desconhecidas,
-
         }
 
         data.update({
-            "targetMatches": data["Correta"][0] == data["Matches"][0] if data["Matches"] else None,
-            "targetCorretor" : data["Correta"][0] == data["Corretor"][0] if data["Corretor"][0] else None
+            "targetMatches": int(data["Correta"][0] == data["Matches"][0]) if data["Matches"] else 0,
+            "targetCorretor": int(data["Correta"][0] == data["Corretor"][0]) if data["Corretor"][0] else 0
         })
-        # for i in data:
-        #     i["targetCorretor"] = [i for i, _ in testes] == [self.corretor(j)[0] for _, j in testes]
-        #     i["targetMatches" ] = i["Correta"] == i["Matches"]
-        
+
         return data
 
 a = CorretorNLP("arrozd")
