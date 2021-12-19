@@ -17,7 +17,8 @@ class CorretorNLP:
         self.palavras_geradas = self.gerador_inception(self.gerador_palavras(text))
         
         self.dataset_test = [tuple(i.split()) for i in open('palavras.txt', mode='r', encoding="utf8")]
-
+        self.teste()
+        
     def teste(self):
         with open("dumps/avaliacao.json", "a", encoding="utf8") as f:
             f.write(json.dumps([self.avaliador([i]) for i in self.dataset_test]))
