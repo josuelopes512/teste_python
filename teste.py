@@ -38,25 +38,25 @@ class CorretorNLP:
             file = f.read()
         return file
 
-    def insere_letras(self, fatias):
-        letras = 'abcedfghijklmnopqrstuvwxyzáâàãéêèíîìóôòõúûùç'
-        return [(esquerdo + letra + direito) for esquerdo, direito in fatias for letra in letras]
-
     def probabilidade(self, palavra_gerada):
         return self.frequencia_text[palavra_gerada] / len(self.listar_palavras_dataset)
 
     def corretor(self, palavra_errada):
         return max(self.gerador_palavras(palavra_errada), key=self.probabilidade), self.gerador_palavras(palavra_errada)
 
+    def insere_letras(self, fatias):
+        letras = 'abcedfghijklmnopqrstuvwxyzáâàãéêèíîìóôòõúûùç'
+        return [esquerdo+letra+direito for esquerdo, direito in fatias for letra in letras]
+
     def deletando_caracter(self, fatias):
-        return [esquerdo + direito[1:] for esquerdo, direito in fatias]
+        return [esquerdo+direito[1:] for esquerdo, direito in fatias]
 
     def troca_caracter(self, fatias):
         letras = 'abcedfghijklmnopqrstuvwxyzáâàãéêèíîìóôòõúûùç'
-        return [esquerdo + letra + direito[1:] for esquerdo, direito in fatias for letra in letras]
+        return [esquerdo+letra+direito[1:] for esquerdo, direito in fatias for letra in letras]
 
     def invertendo_caracter(self, fatias):
-        return [esquerdo + direito[1] + direito[0] + direito[2:] for esquerdo, direito in fatias if len(direito) > 1]
+        return [esquerdo+direito[1]+direito[0]+direito[2:] for esquerdo, direito in fatias if len(direito) > 1]
 
     def gerador_inception(self, palavras_geradas):
         novas_palavras = []
@@ -147,5 +147,6 @@ def train():
 a = CorretorNLP()
 a.teste("palavras.txt")
 train()
-# a.teste("treinamento_erros.txt")
-# train()
+for i in range(5):
+    a.teste("dumps/treinamento_erros.txt")
+    train()
