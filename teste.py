@@ -81,7 +81,6 @@ class CorretorNLP:
             if palavra in self.vocabulario:
                 candidatos.append(palavra)
         if not candidatos:
-            result, candidatos = self.corretor(palavra_errada)
             return self.corretor(palavra_errada)
         return max(candidatos, key=self.probabilidade), candidatos
 
@@ -96,7 +95,6 @@ class CorretorNLP:
                 palavra_corrigida, candidatos  = self.corretor_super_sayajin(errada)
             except:
                 palavra_corrigida, candidatos = self.corretor(errada)
-            
             desconhecidas += (correta not in self.vocabulario)
             if palavra_corrigida == correta:
                 matches.append(palavra_corrigida)
